@@ -1,1 +1,186 @@
+import customtkinter as Ctk
+import os
+import pyperclip
+from datetime import datetime
+import time
 
+def reiniciar_iis(hosts, saida_log):
+    saida_log.insert(Ctk.END, f"[{formatar_datahora_segundo()}]\n")
+    saida_log.update_idletasks()
+    for host in hosts:
+        comando_completo = f"cmd /c iisreset {host}"
+        saida_log.insert(Ctk.END, f"Executando iisreset em {host}...\n")
+        saida_log.update_idletasks()
+        try:
+            resultado = os.popen(comando_completo).read()
+        except Exception as e:
+            saida_log.insert(Ctk.END, f"Erro ao executar comando em {host}: {e}\n")
+        else:
+            saida_log.insert(Ctk.END, resultado)
+        saida_log.insert(Ctk.END, "\n")
+        saida_log.update_idletasks()
+        if len(hosts) > 1:
+            time.sleep(2.5)
+
+def formatar_datahora_segundo():
+    now = datetime.now()
+    return f"{now.strftime('%d/%m/%Y %H:%M:%S')}"
+
+def copiar_para_area_transferencia(saida_log):
+    conteudo = saida_log.get("1.0", Ctk.END)
+    pyperclip.copy(conteudo)
+
+def criar_checkboxes(frame, hosts):
+    frame_hosts = Ctk.CTkFrame(frame)
+    checkboxes = {}
+    num_hosts = len(hosts)
+    num_rows = (num_hosts + 1) // 2
+    for i, host in enumerate(hosts):
+        var = Ctk.BooleanVar()
+        checkbox = Ctk.CTkCheckBox(frame_hosts, text=host, variable=var)
+        row = i % num_rows
+        column = i // num_rows
+        checkbox.grid(row=row, column=column, sticky="w")
+        checkboxes[host] = var
+    return frame_hosts, checkboxes
+
+def atualizar_hosts(frame, checkboxes, mostrar):
+    if mostrar:
+        frame.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky="ew")
+        for checkbox in checkboxes.values():
+            checkbox.set(False)
+    else:
+        frame.grid_forget()
+    root.update_idletasks()
+
+def selecionar_modo():
+    modo = modo_selecao.get()
+    if modo == "SIAALUNO":
+        atualizar_hosts(frame_hosts_siaaluno, checkboxes_siaaluno, True)
+        atualizar_hosts(frame_hosts_siaadm, checkboxes_siaadm, False)
+        atualizar_hosts(frame_hosts_siasvc, checkboxes_siasvc, False)
+    elif modo == "SIAADM":
+        atualizar_hosts(frame_hosts_siaaluno, checkboxes_siaaluno, False)
+        atualizar_hosts(frame_hosts_siaadm, checkboxes_siaadm, True)
+        atualizar_hosts(frame_hosts_siasvc, checkboxes_siasvc, False)
+    elif modo == "SIASVC":
+        atualizar_hosts(frame_hosts_siaaluno, checkboxes_siaaluno, False)
+        atualizar_hosts(frame_hosts_siaadm, checkboxes_siaadm, False)
+        atualizar_hosts(frame_hosts_siasvc, checkboxes_siasvc, True)
+    else:
+        atualizar_hosts(frame_hosts_siaaluno, checkboxes_siaaluno, False)
+        atualizar_hosts(frame_hosts_siaadm, checkboxes_siaadm, False)
+        atualizar_hosts(frame_hosts_siasvc, checkboxes_siasvc, False)
+
+def selecionar_todos(checkboxes):
+    for checkbox in checkboxes.values():
+        checkbox.set(True)
+
+def desmarcar_todos(checkboxes):
+    for checkbox in checkboxes.values():
+        checkbox.set(False)
+
+def main():
+    global root, frame_hosts_siaaluno, frame_hosts_siaadm, frame_hosts_siasvc
+    global checkboxes_siaaluno, checkboxes_siaadm, checkboxes_siasvc, modo_selecao
+
+    root = Ctk.CTk()
+    root.title("Reiniciar IIS")
+    root.geometry("400x580")
+
+    frame = Ctk.CTkFrame(root)
+
+    modos = ["ESCOLHA O POOL", "SIAALUNO", "SIAADM", "SIASVC"]
+    modo_selecao = Ctk.StringVar()
+    modo_selecao.set(modos[0])
+    dropdown_modo = Ctk.CTkComboBox(frame, values=modos, variable=modo_selecao)
+    dropdown_modo.grid(row=0, column=0, pady=(10, 0), padx=10, sticky="ew")
+
+    button_ok = Ctk.CTkButton(frame, text="OK", command=selecionar_modo, width=3)
+    button_ok.grid(row=0, column=1, pady=(10, 0), padx=5, sticky="ew")
+
+    hosts_siaaluno = [
+        'aluno55r.estacio.corp',
+        'aluno46r.estacio.corp',
+        'aluno47r.estacio.corp',
+        'aluno52r.estacio.corp',
+        'aluno49r.estacio.corp',
+        'aluno54r.estacio.corp',
+        'aluno48r.estacio.corp',
+        'aluno45r.estacio.corp',
+        'aluno53r.estacio.corp',
+        'aluno51r.estacio.corp',
+        'aluno50r.estacio.corp',
+        'aluno41r.estacio.corp',
+        'aluno44r.estacio.corp',
+        'aluno42r.estacio.corp',
+        'aluno43r.estacio.corp',
+    ]
+    frame_hosts_siaaluno, checkboxes_siaaluno = criar_checkboxes(frame, hosts_siaaluno)
+
+    hosts_siaadm = [
+        'esrvsiaadm17r.estacio.corp',
+        'esrvsiaadm13r.estacio.corp',
+        'esrvsiaadm12r.estacio.corp',
+        'esrvsiaadm10r.estacio.corp',
+        'esrvsiaadm11r.estacio.corp',
+        'esrvsiaadm15r.estacio.corp',
+        'esrvsiaadm18r.estacio.corp',
+        'esrvsiaadm19r.estacio.corp',
+    ]
+    frame_hosts_siaadm, checkboxes_siaadm = criar_checkboxes(frame, hosts_siaadm)
+
+    hosts_siasvc = [
+        'esrvsiasvc06.estacio.corp',
+        'esrvsiasvc18r.estacio.corp',
+        'esrvsiasvc14r.estacio.corp',
+        'esrvsiasvc01.estacio.corp',
+        'esrvsiasvc16r.estacio.corp',
+        'esrvsiasvc08.estacio.corp',
+        'esrvsiasvc02.estacio.corp',
+        'esrvsiasvc03.estacio.corp',
+        'esrvsiasvc07.estacio.corp',
+    ]
+    frame_hosts_siasvc, checkboxes_siasvc = criar_checkboxes(frame, hosts_siasvc)
+
+    saida_log = Ctk.CTkTextbox(frame, height=200, width=180)
+    saida_log.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+
+    button_reiniciar = Ctk.CTkButton(frame, text="Reiniciar", command=lambda: reiniciar_iis(get_hosts_selecionados(), saida_log))
+    button_reiniciar.grid(row=3, column=0, pady=5, padx=10, sticky="ew")
+
+    button_copiar = Ctk.CTkButton(frame, text="Copiar para Área de Transferência", command=lambda: copiar_para_area_transferencia(saida_log))
+    button_copiar.grid(row=3, column=1, pady=5, padx=10, sticky="ew")
+
+    button_selecionar_todos = Ctk.CTkButton(frame, text="Selecionar Todos", command=lambda: selecionar_todos(checkboxes_siaaluno if modo_selecao.get() == "SIAALUNO" else checkboxes_siaadm if modo_selecao.get() == "SIAADM" else checkboxes_siasvc))
+    button_selecionar_todos.grid(row=4, column=0, pady=5, padx=10, sticky="ew")
+
+    button_desmarcar_todos = Ctk.CTkButton(frame, text="Desmarcar Todos", command=lambda: desmarcar_todos(checkboxes_siaaluno if modo_selecao.get() == "SIAALUNO" else checkboxes_siaadm if modo_selecao.get() == "SIAADM" else checkboxes_siasvc))
+    button_desmarcar_todos.grid(row=4, column=1, pady=5, padx=10, sticky="ew")
+
+    frame.pack(fill=Ctk.BOTH, expand=True)
+
+    label_rodape = Ctk.CTkLabel(root, text="Desenvolvido por: Vagner.Santos - Solor Tecnologia")
+    label_rodape.pack(side=Ctk.BOTTOM)
+
+    root.mainloop()
+
+def get_hosts_selecionados():
+    if modo_selecao.get() == "SIAALUNO":
+        return get_hosts_selecionados_por_pool(checkboxes_siaaluno)
+    elif modo_selecao.get() == "SIAADM":
+        return get_hosts_selecionados_por_pool(checkboxes_siaadm)
+    elif modo_selecao.get() == "SIASVC":
+        return get_hosts_selecionados_por_pool(checkboxes_siasvc)
+    else:
+        return []
+
+def get_hosts_selecionados_por_pool(checkboxes):
+    hosts_selecionados = []
+    for host, var in checkboxes.items():
+        if var.get():
+            hosts_selecionados.append(host)
+    return hosts_selecionados
+
+if __name__ == "__main__":
+    main()
