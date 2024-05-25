@@ -1,0 +1,27 @@
+from netmiko import ConnectHandler
+f = open("config.txt", "w")
+with open('hosts.txt') as ip_list:
+    for ip in ip_list:
+        switch = {
+            'device_type': 'cisco_ios',
+            'ip': ip,
+            'username': 'adminti',
+            'password': 'WrRbrKT1OQGwpEfNlCwo'
+        }
+        print('Conectando ao switch ' + ip)
+        connect = ConnectHandler(**switch)
+        print(connect.find_prompt())
+        f.write(connect.find_prompt())
+        output = connect.send_command_timing(
+        "show run")
+        f.write(output)
+        # output = connect.send_command_timing(
+        # "sho vlan | include 301")
+        # f.write(output)
+        # output = connect.send_command_timing(
+        # "sho vlan | include 302")
+        # f.write(output)
+        # output = connect.send_command_timing(
+        # "exit")
+        # f.write(output)
+f.close()
