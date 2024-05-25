@@ -1,0 +1,32 @@
+from netmiko import ConnectHandler
+
+with open('hosts.txt') as ip_list:
+    for ip in ip_list:
+        switch = {
+            'device_type': 'cisco_ios',
+            'ip': ip,
+            'username': 'yduqs.corp\ricardo.pitanga',
+            'password': 'Cabb@112435'
+        }
+        print('Conectando ao switch ' + ip)
+        connect = ConnectHandler(**switch)
+        print(connect.find_prompt())
+        output = connect.send_command_timing("config term")
+        output = connect.send_command_timing("username adminti privilege 15 password WrRbrKT1OQGwpEfNlCwo")
+        output = connect.send_command_timing("no username nocestacio")
+        output = connect.send_command_timing(
+            "aaa authentication login default local group radius")
+        output = connect.send_command_timing(
+            "aaa authentication login adminti local")
+        output = connect.send_command_timing(
+            "aaa authorization exec default local group radius")
+        output = connect.send_command_timing(
+            "exit")
+        output = connect.send_command_timing(
+            "!")
+        output = connect.send_command_timing(
+            "wr")
+        print(output)
+        output = connect.send_command_timing(
+            "exit")
+        print(output)
