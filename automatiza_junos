@@ -1,0 +1,24 @@
+from netmiko import ConnectHandler
+
+with open('hosts.txt') as ip_list:
+    for ip in ip_list:
+        switch = {
+            #'device_type': 'juniper',
+            'device_type': 'juniper_junos',
+            'ip': ip,
+            'username': 'root',
+            'password': 'yZ4!Qs5%_*a9C7r@Tv1N',
+            'port': 22,
+        }
+
+        print('Conectando ao switch ' + ip)
+        connect = ConnectHandler(**switch)
+        print(connect.find_prompt())
+        output = connect.send_command_timing("cli")
+        output = connect.send_command_timing("configure")
+        output = connect.send_command_timing("show interfaces |display set")
+        print(output)
+        output = connect.send_command_timing("commit")
+        print(output)
+        output = connect.send_command_timing("exit")
+        print(output)
