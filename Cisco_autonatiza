@@ -1,0 +1,102 @@
+from netmiko import ConnectHandler
+
+with open('hosts.txt') as ip_list:
+    for ip in ip_list:
+        switch = {
+            'device_type': 'cisco_ios',
+            'ip': ip,
+            'username': 'nocestacio',
+            'password': '3st@c10N0c789'
+        }
+        print('Conectando ao switch ' + ip)
+        connect = ConnectHandler(**switch)
+        print(connect.find_prompt())
+        output = connect.send_command_timing("enable")
+        output = connect.send_command_timing("config term")
+        output = connect.send_command_timing("username adminti privilege 15 password 3CD_13.Sw")
+        output = connect.send_command_timing("aaa new-model")
+        output = connect.send_command_timing(
+            "aaa authentication login default group radius local")
+
+        #output = connect.send_command_timing(
+        #   "ip default-gateway 10.20.*.*")
+
+        output = connect.send_command_timing(
+            "no radius-server host 10.10.20.176")
+        output = connect.send_command_timing(
+            "aaa authentication login adminti local")
+        output = connect.send_command_timing(
+            "aaa authorization exec default group radius local")
+        output = connect.send_command_timing(
+            "radius-server host 10.150.1.234 auth-port 1812 acct-port 1813 key fgrt1299")
+        output = connect.send_command_timing(
+            "radius server radius")
+        output = connect.send_command_timing(
+            "address ipv4 10.150.1.234 auth-port 1812 acct-port 1813")
+        output = connect.send_command_timing(
+            "key fgrt1299")
+        output = connect.send_command_timing(
+            "exit")
+        output = connect.send_command_timing(
+            "!")
+        output = connect.send_command_timing(
+            "radius-server directed-request")
+        output = connect.send_command_timing(
+            "radius-server key fgrt1299")
+        output = connect.send_command_timing(
+            "service password-encryption")
+        output = connect.send_command_timing(
+            "no tacacs-server host 10.8.0.214")
+        output = connect.send_command_timing(
+            "no tacacs-server directed-request")
+        output = connect.send_command_timing(
+            "no aaa accounting system default")
+        output = connect.send_command_timing(
+            "no aaa authentication login nocestacio local")
+        output = connect.send_command_timing(
+            "no tacacs-server key")
+        output = connect.send_command_timing(
+            "no ip radius source-interface Vlan1")
+        output = connect.send_command_timing(
+            "no aaa authorization commands 0 default group tacacs+ local none")
+        output = connect.send_command_timing(
+            "no aaa authorization commands 1 default group tacacs+ local none")
+        output = connect.send_command_timing(
+            "no aaa authorization commands 15 default group tacacs+ local none")
+        output = connect.send_command_timing(
+            "no aaa authorization configuration default group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting exec default start-stop group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting commands 0 default start-stop group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting commands 1 default start-stop group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting commands 15 default start-stop group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting network default start-stop group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting connection default start-stop group tacacs+")
+        output = connect.send_command_timing(
+            "no aaa accounting system default")
+        output = connect.send_command_timing(
+            "no tacacs-server host 10.8.0.214")
+        output = connect.send_command_timing(
+            "no tacacs-server directed-request")
+        output = connect.send_command_timing(
+            "no tacacs-server key")
+        output = connect.send_command_timing(
+            "no aaa authentication login nocestacio local")
+        output = connect.send_command_timing(
+            "no radius server radius")
+        output = connect.send_command_timing(
+            "service password-encryption")
+        output = connect.send_command_timing(
+            "end")
+        print(output)
+        output = connect.send_command_timing(
+            "wr")
+        print(output)
+        output = connect.send_command_timing(
+            "exit")
+        print(output)
